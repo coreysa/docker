@@ -1,6 +1,7 @@
 package daemon
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/docker/docker/daemon/execdriver"
@@ -72,6 +73,9 @@ func (container *Container) GetSize() (int64, int64) {
 }
 
 func (container *Container) ExportRw() (archive.Archive, error) {
+	if container.IsRunning() {
+		return nil, fmt.Errorf("Cannot export a running container.")
+	}
 	return nil, nil
 }
 

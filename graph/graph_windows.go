@@ -63,21 +63,6 @@ func (graph *Graph) Register(img *image.Image, layerData archive.ArchiveReader) 
 		// Copy the container's diff disk over the one created by the graph driver.
 		log.Debugf("Copying from container %s.", img.Container)
 		if wd, ok := graph.driver.(*windows.DiffDiskDriver); ok {
-
-			// Unmount the diff disk so it can be copied.
-			if err := wd.Put(img.Container); err != nil {
-				return fmt.Errorf("Failed to dismount container disk %s: %s",
-					img.Container, err.Error())
-			}
-			// TODO Windows: uncomment the below for correctness... avoiding
-			// the re-mount is an optimization for speed.
-			/*defer func() {
-				if _, err := wd.Get(img.Container, ""); err != nil {
-					log.Errorf("Failed to mount container disk %s: %s",
-						img.Container, err.Error())
-				}
-			}()*/
-
 			if err := wd.CopyDiff(img.Container, img.ID); err != nil {
 				return fmt.Errorf("Driver %s failed to copy image rootfs %s: %s", graph.driver, img.Container, err)
 			}

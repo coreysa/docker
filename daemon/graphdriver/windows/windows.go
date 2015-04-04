@@ -291,6 +291,15 @@ func (d *DiffDiskDriver) DiffSize(id, parent string) (size int64, err error) {
 }
 
 func (d *DiffDiskDriver) CopyDiff(sourceId, id string) error {
+	d.Lock()
+	defer d.Unlock()
+
+	if d.active[sourceId] != 0 {
+		log.Warnf("Committing active id %s", id)
+		DismountVhd(sourceId)
+		defer MountVhd(sourceId)
+	}
+
 	if err := os.Mkdir(d.dir(id), 0755); err != nil {
 		return err
 	}
